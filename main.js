@@ -2,6 +2,7 @@ const questionOptionsContainer = document.querySelector('.quizz');
 const questionTitle = document.querySelector('.text-quizz');
 const circleContainer = document.querySelector('.circle');
 const loadingContainer = document.querySelector('.loading-cotainer');
+const quizContainer = document.querySelector('.quizz-container');
 
 let levelIndex = 0;
 const userAnswers = [];
@@ -33,8 +34,7 @@ const timelineOptions = gsap.timeline({
 
 
 function animeOptoions() {
-    
-    timelineOptions.fromTo('.text-quizz',{"clip-path": "polygon(0 0, 0 0, 0 100%, 0 100%)"} ,{ 'clip-path': 'polygon(100% 0, 0 0, 0 100%, 100% 100%)'})
+    timelineOptions.fromTo(".text-quizz", {'clip-path': 'polygon(0 0, 0 0, 0 100%, 0 100%)'},{'clip-path': 'polygon(0 0, 100% 0, 100% 100%, 0% 100%)',duration:.8})
         .from('.quizz-item', { opacity: 0, y: -100, stagger: .2 });
 
     timelineOptions.play();
@@ -45,11 +45,20 @@ function selectActiveQuestion(number) {
 }
 
 async function init() {
-    await getQuestionsFromAPI(5);
-    activeQuestion = questions[levelIndex];
-    renderQuestion(activeQuestion.question, [activeQuestion.correct_answer, ...activeQuestion.incorrect_answers]);
-    showResults(questions);
-    loadingContainer.style.display = "none"
+    try {
+        await getQuestionsFromAPI(5);
+        activeQuestion = questions[levelIndex];
+        renderQuestion(activeQuestion.question, [activeQuestion.correct_answer, ...activeQuestion.incorrect_answers]);
+        showResults(questions);
+        loadingContainer.style.display = "none"
+    }
+    catch (error) {
+        loadingContainer.style.display = "none";
+        const errorElement = document.createElement('p');
+        errorElement.className = "error-message";
+        errorElement.textContent = "Can't receive data from server,please refresh your page or check your network connection....";
+        quizContainer.append(errorElement);
+    }
 }
 
 function renderQuestion(questionTitle, questionOptions) {
